@@ -75,7 +75,7 @@ conv_layers = [3, 5]
 for dense_layer in dense_layers:
     for layer_size in layer_sizes:
         for conv_layer in conv_layers:
-            NAME = "{}-conv-{}-layer-{}-dense.model".format(conv_layer, layer_size, dense_layer)
+            NAME = "{}-conv-{}-layer-{}-dense.model_24".format(conv_layer, layer_size, dense_layer)
             print('--> Running configuration: ',NAME)
 
             inputs = keras.Input(shape=X.shape[1:])            

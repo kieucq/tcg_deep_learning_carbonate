@@ -107,9 +107,15 @@ def prepare(filepath):
 # call a CNN trained model and make a prediction
 #
 CATEGORIES = ["No", "Yes"]
-model = tf.keras.models.load_model("./3-conv-32-layer-0-dense.model")
-DATADIR = "/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_0h/"
-category = "pos"
+forecast_lead_time="12"
+model = tf.keras.models.load_model("./3-conv-32-layer-0-dense.model_24")
+#model = tf.keras.models.load_model("./3-conv-32-layer-0-dense.model_12")
+#model = tf.keras.models.load_model("./3-conv-32-layer-0-dense.model_00")  # accuracy = 1 !!!
+#model = tf.keras.models.load_model("./5-conv-32-layer-0-dense.model_00")  # accuracy = 1 !!!
+#model = tf.keras.models.load_model("tcg_CNN_p2a.model") 
+DATADIR = "/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_NA_binary_12h/"
+#DATADIR = "/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/WRF_RCP45_5_binary_12h/"
+category = "neg"
 path = os.path.join(DATADIR,category)
 print(path)
 prediction_total = 0
@@ -128,7 +134,7 @@ for img in tqdm(os.listdir(path)):
         prediction_total += 1    
         #print(prediction_yes, prediction_total,prediction_history)
         #input("Press Enter to continue...")
-        if prediction_total > 30:
+        if prediction_total > 100:
             break
     except Exception as e:
         pass

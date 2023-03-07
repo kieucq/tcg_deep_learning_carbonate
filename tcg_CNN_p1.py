@@ -45,7 +45,8 @@ import cv2
 # define data source and reading pos/neg data 
 #
 IMG_SIZE = 30
-rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_0h/"
+rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_24h/"
+#rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_0h/"
 #rootdir="/N/u/ckieu/Carbonate/python/testdata/"
 tcg_class = ['pos','neg']
 array_raw = []
