@@ -45,9 +45,8 @@ import cv2
 # define data source and reading pos/neg data 
 #
 IMG_SIZE = 30
-rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_24h/"
-#rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_0h/"
-#rootdir="/N/u/ckieu/Carbonate/python/testdata/"
+#rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_24h/"
+rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_0h/"
 tcg_class = ['pos','neg']
 array_raw = []
 for tcg in tcg_class:
@@ -117,7 +116,7 @@ for tcg in tcg_class:
 #
 # visualize a few variables for checking the input data
 #
-print("Raw input data shape (nsample,nclass,ny,nx,nchannel) is: ",len(array_raw),len(array_raw[0]),
+print("Raw input data shape (nsample,nclass,ny,nx,nchannel) is: ",len(array_raw),len(tcg_class),
       len(array_raw[0][0]),len(array_raw[0][0][0]),len(array_raw[0][0][0][0]))
 check_visualization = "no"
 if check_visualization== "yes":
@@ -154,15 +153,16 @@ for features,label in array_raw:
     X.append(features)
     y.append(label)
 X = np.array(X).reshape(-1, IMG_SIZE, IMG_SIZE, 12)
-print(X.shape)
-print(y)
+if check_visualization== "yes":
+    print(X.shape)
+    print(y)
 #
 # save training data to an output for subsequent use
 #
 import pickle
-pickle_out = open("tcg_X.pickle","wb")
+pickle_out = open("tcg_CNNfunctional_X.pickle","wb")
 pickle.dump(X, pickle_out)
 pickle_out.close()
-pickle_out = open("tcg_y.pickle","wb")
+pickle_out = open("tcg_CNNfunctional_y.pickle","wb")
 pickle.dump(y, pickle_out)
 pickle_out.close()

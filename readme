@@ -18,4 +18,8 @@ DIR STRCUTURE:
       identity block/convolutional block as in Andrew Ng's lectures. It will output however
       a single save-best model.
 
+4. utils: This dir contains all utilities that can be used to extract NCEP/WRF output to a
+      binary input data structure for ML training processes. This step must be done first
+      if moving to a new system. These utilities are copied from Quan Nguyen's research.
+
 AUTHOR: (C) Chanh Kieu, ckieu@indiana.edu. Open source licences.
