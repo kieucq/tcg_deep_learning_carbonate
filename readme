@@ -22,4 +22,6 @@ DIR STRCUTURE:
       binary input data structure for ML training processes. This step must be done first
       if moving to a new system. These utilities are copied from Quan Nguyen's research.
 
+5. data: data structure for training/testing of TCG prediction problem
+
 AUTHOR: (C) Chanh Kieu, ckieu@indiana.edu. Open source licences.

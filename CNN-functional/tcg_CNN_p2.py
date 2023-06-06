@@ -29,7 +29,7 @@
 #       - 01, Nov 22: Modified to include more channels
 #       - 17, Nov 23: cusomize it for jupiter notebook
 #       - 21, Feb 23: use functional model instead of sequential model  
-#       - 05, Jun 23: Re-check for consistency with Stage 1 script
+#       - 05, Jun 23: Re-check for consistency with Stage 1 script and added more hyperparamter loops
 #
 # AUTH: Chanh Kieu (Indiana University, Bloomington. Email: ckieu@iu.edu)
 #
