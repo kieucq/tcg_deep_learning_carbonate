@@ -29,6 +29,7 @@
 #       - 01, Nov 22: Modified to include more channels
 #       - 17, Nov 23: cusomize it for jupiter notebook
 #       - 21, Feb 23: use functional model instead of sequential model  
+#       - 05, Jun 23: Re-check for consistency with Stage 1 script
 #
 # AUTH: Chanh Kieu (Indiana University, Bloomington. Email: ckieu@iu.edu)
 #
@@ -43,9 +44,9 @@ from tensorflow.keras.callbacks import TensorBoard
 #
 # read in data output from Part 1
 #
-pickle_in = open("tcg_X.pickle","rb")
+pickle_in = open("tcg_CNNfunctional_X.pickle","rb")
 X = pickle.load(pickle_in)
-pickle_in = open("tcg_y.pickle","rb")
+pickle_in = open("tcg_CNNfunctional_y.pickle","rb")
 y = pickle.load(pickle_in)
 y = np.array(y)
 number_channels=X.shape[3]
@@ -66,16 +67,16 @@ for i in range(nsample):
         #input('Enter to continue...')
 print("Finish normalization...")
 #
-# build a range of CNN models with different number of dense layers, layer sizes
+# build a range of CNN models with different number of dense layer, layer sizes, and
 # convolution layers to optimize the performance
 #
-dense_layers = [0]
+dense_layers = [0, 1, 2]
 layer_sizes = [32]
 conv_layers = [3, 5]
 for dense_layer in dense_layers:
     for layer_size in layer_sizes:
         for conv_layer in conv_layers:
-            NAME = "{}-conv-{}-layer-{}-dense.model_24".format(conv_layer, layer_size, dense_layer)
+            NAME = "{}-conv-{}-layer-{}-dense.model_00h".format(conv_layer, layer_size, dense_layer)
             print('--> Running configuration: ',NAME)
 
             inputs = keras.Input(shape=X.shape[1:])            
@@ -92,6 +93,10 @@ for dense_layer in dense_layers:
                 x = layers.MaxPooling2D(pool_size=2,name="my_pooling_4")(x)
                 x = layers.Conv2D(filters=256,kernel_size=conv_layer,activation="relu",name="my_conv2d_5")(x)
             x = layers.Flatten(name="my_flatten")(x)
+            
+            for _ in range(dense_layer):
+                x = layers.Dense(layer_size,activation="relu")(x)                
+                
             outputs = layers.Dense(1,activation="sigmoid",name="my_dense")(x)
             model = keras.Model(inputs=inputs,outputs=outputs,name="my_functional_model")
             model.summary()
@@ -99,7 +104,7 @@ for dense_layer in dense_layers:
             
             callbacks=[keras.callbacks.ModelCheckpoint(NAME,save_best_only=True)]
             model.compile(loss="binary_crossentropy",optimizer="adam",metrics=["accuracy"])
-            history = model.fit(X, y, batch_size=90, epochs=30, validation_split=0.1, callbacks=callbacks)
+            history = model.fit(X, y, batch_size=128, epochs=30, validation_split=0.1, callbacks=callbacks)
 #
 # Visualize the output of the training model (work for jupyter notebook only)
 #

@@ -46,7 +46,7 @@ import cv2
 #
 IMG_SIZE = 30
 #rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_24h/"
-rootdir="/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_WP_binary_0h/"
+rootdir="/N/slate/ckieu/deep-learning/data/ncep_binary_30x30_00h/training/"
 tcg_class = ['pos','neg']
 array_raw = []
 for tcg in tcg_class:

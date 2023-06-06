@@ -29,6 +29,7 @@
 #
 # HIST: - 01, Nov 22: Created by CK
 #       - 02, Nov 22: Modified to optimize it
+#       - 05. Jun 23: Rechecked and added F1 score function for a list of model
 #
 # AUTH: Chanh Kieu (Indiana University, Bloomington. Email: ckieu@iu.edu)
 #
@@ -104,42 +105,84 @@ def prepare(filepath):
     #input('Enter to continue...')
     return out_array
 #
-# call a CNN trained model and make a prediction
+# build an F1-score function for later use
 #
-CATEGORIES = ["No", "Yes"]
-forecast_lead_time="12"
-model = tf.keras.models.load_model("./3-conv-32-layer-0-dense.model_24")
-#model = tf.keras.models.load_model("./3-conv-32-layer-0-dense.model_12")
-#model = tf.keras.models.load_model("./3-conv-32-layer-0-dense.model_00")  # accuracy = 1 !!!
-#model = tf.keras.models.load_model("./5-conv-32-layer-0-dense.model_00")  # accuracy = 1 !!!
-#model = tf.keras.models.load_model("tcg_CNN_p2a.model") 
-DATADIR = "/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/ncep_NA_binary_12h/"
-#DATADIR = "/N/project/pfec_climo/qmnguyen/tc_prediction/binary_datasets/WRF_RCP45_5_binary_12h/"
-category = "neg"
-path = os.path.join(DATADIR,category)
-print(path)
-prediction_total = 0
-prediction_yes = 0
-prediction_history = []
-for img in tqdm(os.listdir(path)):
-    try:
-        img_dir = DATADIR + '/' + category + '/' + img
-        print('Processing image:', img_dir)
-        #print('Input image dimension is: ',prepare(img_dir).shape)
-        prediction = model.predict([prepare(img_dir)])
-        print("TC formation prediction is",prediction,round(prediction[0][0]),CATEGORIES[round(prediction[0][0])])
-        prediction_history.append([prediction[0][0], round(prediction[0][0])])
-        if round(prediction[0][0]) == 1:
-            prediction_yes += 1
-        prediction_total += 1    
-        #print(prediction_yes, prediction_total,prediction_history)
-        #input("Press Enter to continue...")
-        if prediction_total > 100:
-            break
-    except Exception as e:
-        pass
-
-print(f"Prediction accuracy for yes event is: {prediction_yes/prediction_total: .4f}")    
-#print(prediction_history)
+def F1_score(y_true,y_prediction,true_class,true_threshold):
+    T = len(y_true)
+    if len(y_prediction) != T:
+        print("Prediction and true label arrays have different size. Stop")
+        return
+    P = 0
+    TP = 0 
+    FN = 0
+    TN = 0
+    FP = 0
+    for i in range(T):
+        if y_true[i] == true_class:
+            P = P + 1       
+            if y_prediction[i] >= true_threshold:
+                TP += 1 
+            else:
+                FN += 1
+        else:
+            if y_prediction[i] >= true_threshold:
+                FP += 1 
+            else:
+                TN += 1            
+    N = T - P    
+    F1 = 2.*TP/(2.*TP + FP + FN)
+    Recall = TP/float(TP+FN)
+    if TP == 0 and FP == 0: 
+        Precision = 0.
+    else:    
+        Precision = TP/float(TP+FP)
+    return F1, Recall, Precision
+#
+# loop thru all best-saved CNN trained models and make a prediction. Note that prediction is applied one by one instead 
+# of a batch input. 
+#
+DATADIR = "/N/slate/ckieu/deep-learning/data/ncep_binary_30x30_00h/testing"
+bestmodels = ["3-conv-32-layer-0-dense.model_00h","3-conv-32-layer-1-dense.model_00h","3-conv-32-layer-2-dense.model_00h",
+              "5-conv-32-layer-0-dense.model_00h","5-conv-32-layer-1-dense.model_00h","5-conv-32-layer-2-dense.model_00h"]
+CATEGORIES = ["neg", "pos"]
+F1_performance = []
+for bestmodel in bestmodels:
+    model = tf.keras.models.load_model(bestmodel)
+    prediction_total = 0
+    prediction_yes = 0
+    prediction_history = []
+    truth_history = []
+    for category in CATEGORIES:
+        path = os.path.join(DATADIR,category)
+        for img in tqdm(os.listdir(path)):    
+            try:
+                img_dir = DATADIR + '/' + category + '/' + img
+                print('Processing image:', img_dir)
+                #print('Input image dimension is: ',prepare(img_dir).shape)
+                prediction = model.predict([prepare(img_dir)])
+                print("TC formation prediction is",prediction,round(prediction[0][0]),CATEGORIES[round(prediction[0][0])])
+                prediction_history.append(prediction[0][0])
+                if round(prediction[0][0]) == 1:
+                    prediction_yes += 1
+                if category == "pos":
+                    truth_history.append(1)
+                else:
+                    truth_history.append(0)
+                prediction_total += 1    
+                if prediction_total > 1000:
+                    break
+            except Exception as e:
+                pass   
+#
+# Compute F1 score for each best model now
+#
+    print(prediction_history)
+    F1_performance.append([bestmodel,F1_score(truth_history,prediction_history,1,0.5)]) 
+#
+# Print out the F1 performance of all models
+#
+print("F1, Recall, Precision for all models are:")
+for i in range(len(bestmodels)):
+    print("Model:", F1_performance[i])
 
 
