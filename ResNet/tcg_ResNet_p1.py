@@ -1,7 +1,7 @@
 #
 # NOTE: This deep learning program is for predicting TC formation, using
-#       input dataset in the NETCDF format and ResNet50 architechture. 
-#       The program treats different2D input fields as different channels 
+#       input dataset in the NETCDF format and the ResNet50 architechture. 
+#       The program treats different 2D input fields as different channels 
 #       of an image. This ResNet program requires a set of 12 2D-variables 
 #       (12-channel image) and consists of three stages
 #       - Stage 1: reading NETCDF input and generating (X,y) data with a 
@@ -13,30 +13,28 @@
 #                  of prediction from normalized test data. 
 #
 # INPUT: This Stage 1 script requires two specific input datasets, including
-#       1. 7 meterological vars u, v,abs vort, tmp, RH, vvels, sst, cape  
+#       1. 12 meterological vars u, v, abs vort, tmp, RH, vvels, sst, cape  
 #          corresponding to negative cases (i.e. no TC formation within the 
-#          domain). 
+#          domain). The data must be given as an array of 30x30, with a 
+#          resolution of 1 degree.
 #       2. Similar data but for positive cases (i.e., there is a TC centered
 #          on the domain)  
+# 
 #        Remarks: Note that these data must be on the standard 19 vertical
 #        levels 1000, 975, 950, 925, 900, 850, 800, 750, 700, 650, 600, 
 #        550, 500, 450, 400, 350, 300, 250, 200. Also, all field vars must
 #        be resize to cover an area of 30x30 around the TC center for the 
 #        positive data cases.
 #
-# OUTPUT: A set of pairs (X,y) needed for CNN training
+# OUTPUT: A set of pairs (X,y) needed for ResNet training
 #
-# HIST: - 25, Oct 22: Created by CK
-#       - 27, Oct 22: Added a classification loop to simplify the code
-#       - 01, Nov 22: Modified to include more channels  
-#       - 02, Feb 23: Revised for jupiter-notebook workflow
-#       - 29, May 23: Updated for ResNet architechture
+# HIST: - 29, May, 23: Updated for ResNet architechture from the CNN model
+#       - 08, Jun, 23: refined for better workflow
 #
 # AUTH: Chanh Kieu (Indiana University, Bloomington. Email: ckieu@iu.edu) 
 #
 #==========================================================================
 import netCDF4
-#import xarray as xr
 import numpy as np
 import os
 from tqdm import tqdm
@@ -46,8 +44,9 @@ import cv2
 # define data source and reading pos/neg data 
 #
 IMG_SIZE = 30
-rootdir="/N/project/pfec_climo/ckieu/quan/tc_prediction/binary_datasets/ncep_WP_binary_0h/"
-#rootdir="/N/u/ckieu/Carbonate/python/testdata/"
+leadtime = "00h"
+nchannels = 12
+rootdir="/N/slate/ckieu/deep-learning/data/ncep_binary_30x30_" + leadtime + "/training/"
 tcg_class = ['pos','neg']
 array_raw = []
 for tcg in tcg_class:
@@ -66,7 +65,7 @@ for tcg in tcg_class:
             ny = np.size(abv[0,:,0])
             nz = np.size(abv[:,0,0])
             print('nx = ',nx,' ny = ',ny )             
-            a2 = np.zeros((nx,ny,12))         
+            a2 = np.zeros((nx,ny,nchannels))         
             for i in range(a2.shape[0]):
                 for j in range(a2.shape[1]):
                     a2[i,j,0] = abv[1,j,i]    # abs vort at 950 mb
@@ -119,8 +118,7 @@ for tcg in tcg_class:
 #
 print("Raw input data shape (nsample,nclass,ny,nx,nchannel) is: ",len(array_raw),len(tcg_class),
     len(array_raw[0][0]),len(array_raw[0][0][0]),len(array_raw[0][0][0][0]))
-
-check_visualization = "yes"
+check_visualization = "no"
 if check_visualization== "yes":
     print("Plotting one example from raw data input")
     temp = np.array(array_raw[7][0])
@@ -154,9 +152,10 @@ y = []
 for features,label in array_raw: 
     X.append(features)
     y.append(label)
-X = np.array(X).reshape(-1, IMG_SIZE, IMG_SIZE, 12)
-print(X.shape)
-print(y)
+X = np.array(X).reshape(-1, IMG_SIZE, IMG_SIZE, nchannels)
+if check_visualization== "yes":
+    print(X.shape)
+    print(y)
 #
 # save training data to an output for subsequent use
 #
@@ -164,6 +163,6 @@ import pickle
 pickle_out = open("tcg_ResNet_X.pickle","wb")
 pickle.dump(X, pickle_out)
 pickle_out.close()
-pickle_out = open("tcg_ResNet_Y.pickle","wb")
+pickle_out = open("tcg_ResNet_y.pickle","wb")
 pickle.dump(y, pickle_out)
 pickle_out.close()
