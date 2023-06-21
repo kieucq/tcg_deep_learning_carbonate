@@ -28,8 +28,8 @@
 #
 # HIST: - 27, May 23: Created by CK from the open sourse ResNet50 model in 
 #                     the deep learning course.
-#       - 12, Jun 23: Added ResNet-22 model and re-organized the workflow for
-#                     better fit with the TCG prediction problem.
+#       - 12, Jun 23: Added ResNet-20, and ResNet-22 model and re-organized the
+#                     workflow for better fit with the TCG prediction problem.
 #
 # AUTH: Chanh Kieu (Indiana University, Bloomington. Email: ckieu@iu.edu)
 #===============================================================================
@@ -73,7 +73,6 @@ def identity_block(X, f, filters, training=True, initializer=random_uniform):
     # Final step: Add shortcut value to main path, and pass it through a RELU activation
     X = Add()([X_shortcut,X])
     X = Activation('relu')(X) 
-    
     return X
 # 
 # Building the convolutional_block for ResNet with 3 convolutional layers
@@ -106,7 +105,6 @@ def convolutional_block(X, f, filters, s = 2, training=True, initializer=glorot_
     # Final step: Add shortcut value to main path and pass it through a RELU activation
     X = Add()([X, X_shortcut])
     X = Activation('relu')(X)
-    
     return X
 # 
 # Building the ResNet-40 model for TCG classifications. The default input shape is a 
@@ -114,7 +112,6 @@ def convolutional_block(X, f, filters, s = 2, training=True, initializer=glorot_
 # Likewise, the default number of classes is 1.
 #
 def ResNet40(input_shape = (30, 30, 12), classes = 1):
-    
     # Define the input as a tensor with shape input_shape
     X_input = Input(input_shape)
     
@@ -166,13 +163,11 @@ def ResNet40(input_shape = (30, 30, 12), classes = 1):
     
     # Create model
     model = Model(inputs = X_input, outputs = X)
-
     return model
 #
 # ResNet-22 model
 #
 def ResNet22(input_shape = (30, 30, 12), classes = 1):
-
     # Define the input as a tensor with shape input_shape
     X_input = Input(input_shape)
 
@@ -207,7 +202,42 @@ def ResNet22(input_shape = (30, 30, 12), classes = 1):
 
     # Create model
     model = Model(inputs = X_input, outputs = X)
+    return model
+#
+# ResNet-20 model
+#
+def ResNet20(input_shape = (30, 30, 12), classes = 1):
+    # Define the input as a tensor with shape input_shape
+    X_input = Input(input_shape)
 
+    # Zero-Padding
+    X = ZeroPadding2D((2, 2))(X_input)
+
+    # Stage 1 - 1 layer
+    X = Conv2D(64, (5, 5), strides = (2, 2), kernel_initializer = glorot_uniform(seed=0))(X)
+    X = BatchNormalization(axis = 1)(X)
+    X = Activation('relu')(X)
+    X = MaxPooling2D((3, 3), strides=(2, 2))(X)
+
+    # Stage 2 - 9 layers
+    X = convolutional_block(X, f = 3, filters = [64, 64, 256], s = 1)
+    X = identity_block(X, 3, [64, 64, 256])
+    X = identity_block(X, 3, [64, 64, 256])
+
+    # Stage 3 - 9 layers
+    X = convolutional_block(X, f = 3, filters = [128, 128, 512], s = 2)
+    X = identity_block(X, 3, [128, 128, 512])
+    X = identity_block(X, 3, [128, 128, 512])    
+
+    # AVGPOOL (≈1 line). Use "X = AveragePooling2D()(X)"
+    X = AveragePooling2D()(X)
+
+    # output layer - 1 dense layer
+    X = Flatten()(X)
+    X = Dense(classes, activation='sigmoid', kernel_initializer = glorot_uniform(seed=0))(X)
+
+    # Create model
+    model = Model(inputs = X_input, outputs = X)
     return model
 #
 # read in data output from Stage 1
@@ -244,10 +274,12 @@ print ("Y shape: " + str(Y.shape))
 # [gamma weights, beta weights, moving_mean(non-trainable), moving_variance(non-trainable)]
 # for each filter normalization.
 #
-resnets = ['ResNet22', 'ResNet40']
+resnets = ['ResNet20', 'ResNet22', 'ResNet40']
 for resnet in resnets:
-    if resnet == "ResNet22":
-        model = ResNet22(input_shape = (30, 30, 12), classes = 1)
+    if resnet == "ResNet20":
+        model = ResNet20(input_shape = (30, 30, 12), classes = 1)
+    elif resnet == "ResNet22":
+        model = ResNet22(input_shape = (30, 30, 12), classes = 1)    
     elif resnet == "ResNet40":
         model = ResNet40(input_shape = (30, 30, 12), classes = 1)
     model.summary()
@@ -255,7 +287,7 @@ for resnet in resnets:
                   loss='binary_crossentropy',
                   metrics=[tf.keras.metrics.BinaryAccuracy(name="binary_accuracy", dtype=None, threshold=0.3)])
     callbacks=[keras.callbacks.ModelCheckpoint("tcg_" + resnet + ".model",save_best_only=True)]
-    history = model.fit(X, Y, epochs = 30, batch_size = 128, validation_split=0.1, callbacks=callbacks)
+    history = model.fit(X, Y, epochs = 100, batch_size = 128, validation_split=0.1, callbacks=callbacks)
 #
 # visualization checking
 #

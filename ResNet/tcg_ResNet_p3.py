@@ -143,7 +143,7 @@ def F1_score(y_true,y_prediction,true_class,true_threshold):
 # of a batch input. 
 #
 DATADIR = "/N/slate/ckieu/deep-learning/data/ncep_binary_30x30_00h/testing"
-bestmodels = ["tcg_ResNet22.model","tcg_ResNet40.model"]
+bestmodels = ["tcg_ResNet20.model","tcg_ResNet22.model","tcg_ResNet40.model"]
 CATEGORIES = ["neg", "pos"]
 F1_performance = []
 for bestmodel in bestmodels:
@@ -184,7 +184,7 @@ for bestmodel in bestmodels:
 print("========================================")
 print("Summary of the ResNet model performance:")
 for i in range(len(bestmodels)):
-    print("Model, F1, Recall, Presision are:", F1_performance[i])
+    print("Model:",F1_performance[i][0]," --- F1, Recall, Presision:",np.round(F1_performance[i][1],2))
 
 
 
