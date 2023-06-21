@@ -14,9 +14,13 @@ DIR STRCUTURE:
       sizes. There are two versions for this architecture, one is using the binary_accuracy
       and the other use the F1-score as a metric   
 
-3. ResNet: This dir contains a deep ResNet model with 50 convolutional layers, using the same
-      identity block/convolutional block as in Andrew Ng's lectures. It will output however
-      a single save-best model.
+3. CNN-augmentation: the same as CNN-functional but with augmentation and dropout added. Not
+      much improvement overall.
+
+3. ResNet: This dir contains a deep ResNet model with 20, 22, and 40 convolutional layers, using
+      identity block/convolutional blocks as in Andrew Ng's lectures. It will output however
+      a single save-best model. Work fine for ResNet-20 but does not perform as well as a 
+      simple CNN-functional.
 
 4. utils: This dir contains all utilities that can be used to extract NCEP/WRF output to a
       binary input data structure for ML training processes. This step must be done first
