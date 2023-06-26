@@ -12,6 +12,16 @@ NOTE: This directory contains several different deep-learning models for TC form
       These external scripts can be found in the utils dir, or it can be created easily. See the 
       dir "data" for the structure of the input data.
 
+      For the type of large domain input using "extract_environment_features_from_ncep.py", note
+      also that this script will produce a single input dir with both pos/neg data combined. The
+      pos/neg label is contained in the csv file included within this domain. One can re-structure
+      this input data dir by using script "create_tc_binary_ncep_chanh.ipynb", which will generate
+      two separate dirs for pos/neg similar to typical Keras dataset input structure. 
+
+      Remark: the deep-learning architechures contained in this Git are specifically designed for
+      12 channel input. These are hard-wired in all scripts, and one must re-generate all input
+      data if different channels/variables are used. 
+
 DIR STRCUTURE:
 1. utils: This dir contains all utilities that can be used to extract NCEP/WRF output to a
       binary input data structure for ML training processes. This step must be done first
