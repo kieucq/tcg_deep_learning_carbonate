@@ -47,11 +47,11 @@ from netCDF4 import Dataset
 #
 # reading CSV data that is output from Quan's workflow
 #
-hh = '72h'
+hh = '6h'
 #datain_path='/N/slate/ckieu/tmp/output/2020/'
 #dataout_path='/N/slate/ckieu/tmp/output/2020_binary/'
 datain_path='/N/project/hurricane-deep-learning/data/ncep_extracted_41x161_13vars/'
-dataout_path='/N/project/hurricane-deep-learning/data/ncep_extracted_binary_41x161/' + hh + '/'
+dataout_path='/N/project/hurricane-deep-learning/data/ncep_extracted_segmentation_41x161/' + hh + '/'
 df_train = pd.read_csv(datain_path+'tc_' + hh +'_train.csv')
 df_val = pd.read_csv(datain_path+'tc_' + hh + '_val.csv')
 df_test = pd.read_csv(datain_path+'tc_' + hh + '_test.csv')

@@ -9,13 +9,18 @@ Installing environment
 8. poetry install
 
 Running scripts
-1. $HOME/scripts/extract_environment_features_from_ncep.py: extract grib2 data for a given domain/vars. See script for input arguments.
+1. ./ncep/extract_13vars_grib2.py.py: extract grib2 data for a given domain/vars. See script for input arguments.
    ex: python extract_ncep.py /N/slate/ckieu/tmp/input/ /N/slate/ckieu/tmp/output/test --lat 0 20 --lon 100 120
-2. $HOME/scripts/create_labels_v2.py: extract best track to create a list of TC centers and stored in a csv file
+2. ./ncep/create_labels_v2.py: extract best track to create a list of TC centers and stored in a csv file
    ex: python create_labels_v2.py --best-track /N/project/pfec_climo/qmnguyen/tc_prediction/data/bdeck/ibtracs.ALL.list.v04r00.csv 
        --observations-dir /N/slate/ckieu/tmp/output/test/ --leadtime 0
-3. $HOME/scripts/split_train_test_v1.py: generate the training, validation, and test datasets.
+3. ./ncep/split_train_test_v1.py: generate the training, validation, and test datasets.
    ex: python split_train_test_v1.py --test-from 20210918 --val-from 20210801 --labels /N/slate/ckieu/tmp/output/test/tc_0h.csv
+4. ./ncep/create_ncep_binary_stormcenter.py: use TC bestract to generate a set of binary dataset centered on TC genesis location
+   with a given domain size. The pos/neg pairs will be the same as the number of TCG events;
+5. ./ncep/create_ncep_binary_largedomain.py: use CSV files to generate a set of positive folder for each lead time that contains
+   a fixed domain on the date where TCG occurs. All other times will be considered as a negative set. This is highly UNBALANCED
+   dataset for training.   
 
 Modifications
 1. Changing extracted input variables: modify variable list in extract_environment_features_from_ncep.py. 

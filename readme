@@ -51,4 +51,10 @@ DIR STRCUTURE:
       as the Inception model requires 3-channel input data, while the TCG data are 12-channel
       arrays. 
 
+8. diagnostics: this dir contains all visualization scripts that can help understand how CNN works
+      using IG, heatmap, ...
+
+9. preprocess: this dir contains important scripts that generate binary dataset for either storm-following
+      or large static domains from NCEP renalysis or WRF downscaling
+
 AUTHOR: (C) Chanh Kieu, ckieu@indiana.edu. Open source licences.
